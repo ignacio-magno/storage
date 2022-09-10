@@ -2,7 +2,6 @@ package storage
 
 import (
 	"context"
-	"fmt"
 	"time"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
@@ -47,7 +46,7 @@ func (p *PresignedClient) GeneratePresignedUrlGet() (string, error) {
 }
 
 // return url to put object
-func (p *PresignedClient) GeneratePresignedUrlPut() {
+func (p *PresignedClient) GeneratePresignedUrlPut() (string, error) {
 
 	res, err := p.client.PresignPutObject(context.Background(), &s3.PutObjectInput{
 		Bucket: aws.String(p.bucket),
@@ -56,16 +55,6 @@ func (p *PresignedClient) GeneratePresignedUrlPut() {
 		o.Expires = p.duration
 	})
 
-	if err != nil {
-		panic(err)
-	}
-
-	fmt.Printf("res.Method: %v\n", res.Method)
-	for k, v := range res.SignedHeader {
-		fmt.Printf("k: %v\n", k)
-		fmt.Printf("v: %v\n", v)
-	}
-
-	fmt.Printf("res.URL: %v\n", res.URL)
+	return res.URL, err
 
 }
