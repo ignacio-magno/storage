@@ -46,12 +46,17 @@ func (p *PresignedClient) GeneratePresignedUrlGet() (string, error) {
 }
 
 // return url to put object
-func (p *PresignedClient) GeneratePresignedUrlPut() (string, error) {
+func (p *PresignedClient) GeneratePresignedUrlPut(setDataCustoms ...func(*s3.PutObjectInput)) (string, error) {
+	var input s3.PutObjectInput
 
-	res, err := p.client.PresignPutObject(context.Background(), &s3.PutObjectInput{
-		Bucket: aws.String(p.bucket),
-		Key:    aws.String(p.key),
-	}, func(o *s3.PresignOptions) {
+	for _, v := range setDataCustoms {
+		v(&input)
+	}
+
+	input.Bucket = aws.String(p.bucket)
+	input.Key = aws.String(p.key)
+
+	res, err := p.client.PresignPutObject(context.Background(), &input, func(o *s3.PresignOptions) {
 		o.Expires = p.duration
 	})
 
