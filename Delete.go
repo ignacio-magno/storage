@@ -1,4 +1,4 @@
-package storage
+package storageS3
 
 import (
 	"context"
@@ -7,22 +7,10 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 )
 
-type Delete struct {
-	bucket string
-	key    string
-}
-
-func (d Delete) Delete(bucket, key string) *Delete {
-	var del Delete
-	del.bucket = bucket
-	del.key = key
-	return &del
-}
-
-func (d *Delete) DeleteObject() error {
+func DeleteObject(d IStorageS3) error {
 	_, err := client.DeleteObject(context.Background(), &s3.DeleteObjectInput{
-		Bucket: aws.String(d.bucket),
-		Key:    aws.String(d.key),
+		Bucket: aws.String(d.GetBucket()),
+		Key:    aws.String(d.GetKey()),
 	})
 
 	return err

@@ -1,45 +1,25 @@
-package storage
+package storageS3
 
 import (
-	"bytes"
 	"context"
+	"mime/multipart"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 )
 
-// =====================================================================================================================
-type Upload struct {
-	base
-	data []byte
-}
+// UploadObject in metadata, set values optionals how "Content-Type" or "Content-Disposition"
+func UploadObject(u IStorageS3, data multipart.File, metadata func(*s3.PutObjectInput)) error {
 
-func (j Upload) Upload(bucket string, key string, data []byte) *Upload {
-	var up Upload
-	up.constructorBase(bucket, key)
-	up.data = data
-	return &up
-}
+	var putObjectInput s3.PutObjectInput
 
-func (s *Upload) getData() []byte {
-	return s.data
-}
+	metadata(&putObjectInput)
 
-func (j *Upload) UploadObject() error {
-	return uploadObject(j)
-}
+	putObjectInput.Bucket = aws.String(u.GetBucket())
+	putObjectInput.Body = data
+	putObjectInput.Key = aws.String(u.GetKey())
 
-// without struct
-
-func uploadObject(u IUpload) error {
-
-	reader := bytes.NewBuffer(u.getData())
-
-	_, err := client.PutObject(context.Background(), &s3.PutObjectInput{
-		Bucket: aws.String(u.getBucket()),
-		Key:    aws.String(u.getKey()),
-		Body:   reader,
-	})
+	_, err := client.PutObject(context.Background(), &putObjectInput)
 
 	return err
 }

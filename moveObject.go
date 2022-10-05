@@ -1,4 +1,4 @@
-package storage
+package storageS3
 
 import (
 	"context"
@@ -7,24 +7,16 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 )
 
-// =====================================================================================================================
-type MoveObject struct {
-	base
-	sourceKey string
+type IMoveObject interface {
+	IStorageS3
+	GetSourceKey() string
 }
 
-func (m MoveObject) MoveObject(bucket, key, sourceKey string) *MoveObject {
-	var mo MoveObject
-	mo.constructorBase(bucket, key)
-	mo.sourceKey = sourceKey
-	return &mo
-}
-
-func (m *MoveObject) CopyObject() error {
+func CopyObject(m IMoveObject) error {
 	_, err := client.CopyObject(context.Background(), &s3.CopyObjectInput{
-		Bucket:     aws.String(m.getBucket()),
-		Key:        aws.String(m.getKey()),
-		CopySource: aws.String(m.sourceKey),
+		Bucket:     aws.String(m.GetBucket()),
+		Key:        aws.String(m.GetKey()),
+		CopySource: aws.String(m.GetSourceKey()),
 	})
 
 	return err

@@ -1,4 +1,4 @@
-package storage
+package storageS3
 
 import (
 	"context"
@@ -8,27 +8,11 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 )
 
-// ============================================================================================================================
-
-type Download struct {
-	base
-}
-
-func (d Download) Download(bucket string, key string) *Download {
-	var dow Download
-	dow.constructorBase(bucket, key)
-	return &dow
-}
-
-func (d *Download) DownloadObject() ([]byte, error) {
-	return downloadObject(d)
-}
-
-//  without struct
-func downloadObject(d IDownload) ([]byte, error) {
+// DownloadObject without struct
+func DownloadObject(d IStorageS3) ([]byte, error) {
 	res, err := client.GetObject(context.Background(), &s3.GetObjectInput{
-		Bucket: aws.String(d.getBucket()),
-		Key:    aws.String(d.getKey()),
+		Bucket: aws.String(d.GetBucket()),
+		Key:    aws.String(d.GetKey()),
 	})
 
 	if err != nil {
